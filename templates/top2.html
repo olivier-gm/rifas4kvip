@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 5 - Rifa2</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        .btn-delete {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background-color: #45a049;
+        }
+
+        .btn-copy {
+            background-color: #17a2b8;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-copy:hover {
+            background-color: #138496;
+        }
+
+        .table-responsive {
+            margin-bottom: 1rem;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .clickable-cell {
+            cursor: pointer;
+        }
+
+        .clickable-cell:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container my-4">
+        <h2 class="text-center mb-4">Top 5 - Rifa2</h2>
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cédula</th>
+                        <th>Teléfono</th>
+                        <th>Tickets</th>
+                        <th>Cantidad</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for solicitud in solicitudes %}
+                    <tr>
+                        <td class="clickable-cell">{{ solicitud.nombre }}</td>
+                        <td class="clickable-cell">{{ solicitud.cedula }}</td>
+                        <td class="clickable-cell">{{ solicitud.telefono }}</td>
+                        <td class="clickable-cell">{{ solicitud.cartones }}</td>
+                        <td class="clickable-cell">{{ solicitud.length }}</td>
+                        <td class="clickable-cell">{{ solicitud.monto }}</td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                let table = document.querySelector(".table tbody");
+                let rows = Array.from(table.querySelectorAll("tr"));
+
+                let data = rows.map(row => {
+                    let cantidadCell = row.cells[4]; // la celda de cantidad es la 5ta aquí
+                    let cantidad = parseInt(cantidadCell.textContent.trim()) || 0;
+                    return { row, cantidad };
+                });
+
+                data.sort((a, b) => b.cantidad - a.cantidad);
+
+                let top5 = data.slice(0, 5);
+
+                top5.forEach((item, index) => {
+                    let numCell = document.createElement("td");
+                    numCell.textContent = index + 1;
+                    numCell.classList.add("clickable-cell");
+                    item.row.insertBefore(numCell, item.row.firstChild);
+                });
+
+                let thead = document.querySelector(".table thead tr");
+                let numHeader = document.createElement("th");
+                numHeader.textContent = "#";
+                thead.insertBefore(numHeader, thead.firstChild);
+
+                table.innerHTML = "";
+                top5.forEach(item => table.appendChild(item.row));
+            });
+            </script>
+
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-jBq8dLDry3nJ8tyDk5bxUQwF1XZUjZlZFS8SSek0bpKPIqjPY/z2QkI9rxfnzTMq" crossorigin="anonymous"></script>
+</body>
+</html>

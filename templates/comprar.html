@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/static/img/ico.png" type="image/x-icon">
+    <title>Comprar tickets</title>
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #000000f5;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .availability-bar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            background-color: #e0e0e0; /* Fondo de la barra completa */
+            border-radius: 5px;
+            overflow: hidden;
+            height: 36px;
+            margin-bottom: 20px;
+            position: relative; /* Necesario para posicionar el texto */
+        }
+
+        .availability-bar .remaining {
+            background-color: #4caf50; /* Color de la barra de progreso */
+            height: 100%;
+            transition: width 0.3s ease; /* Animación suave */
+        }
+
+        .availability-text {
+            position: absolute; /* Centra el texto sobre la barra */
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            color: #000000;
+            font-weight: bold;
+            pointer-events: none; /* Evita que el texto interfiera con clics */
+        }
+
+        .counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+.counter button {
+    background-color: red;
+    color: white;
+    font-size: 20px;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    animation: neonBlink 1s infinite alternate;
+}
+
+.counter button.add {
+    background-color: #4caf50;
+}
+
+@keyframes neonBlink {
+    0% {
+        box-shadow: 0 0 5px #ff00f7, 0 0 10px #ff00f7;
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 20px #ff00f7, 0 0 40px #ff00f7;
+        transform: scale(1.05);
+    }
+}
+
+        .counter input {
+            width: 50px;
+            height: 40px;
+            text-align: center;
+            font-size: 18px;
+            border: none;
+            background-color: #3a3a3a;
+            color: #fff;
+        }
+        .methods {
+            margin-bottom: 20px;
+        }
+        .methods h4 {
+            margin-bottom: 10px;
+        }
+        .methods .method {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #444;
+            padding: 10px;
+            font-size: large;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .methods .method button {
+            background-color: #333;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-select{
+        background-color: whitesmoke;
+        padding: 5px;
+        font-size: 14px;
+        }
+        .form-group input {
+            font-size: 16px;
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3a3a3a;
+            color: white;
+        }
+        .form-group input[type="file"] {
+            padding: 5px;
+            width: 50%;
+
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+        .actions button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .actions .buy {
+            background-color: #4caf50;
+            color: white;
+        }
+        .actions .back {
+            background-color: red;
+            color: white;
+        }
+        #texto{
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="availability-bar">
+            <div class="remaining" id="remaining-bar"></div>
+            <div class="availability-text" id="availability-text">QUEDAN {{ porcentaje }}%</div>
+        </div>
+        <form id="purchaseForm" action="/registrar_compra" method="POST" enctype="multipart/form-data">
+
+        <div class="counter">
+            <button type="button" onclick="decrement()">-</button>
+            <input type="text" id="quantity" name="quantity" value="{{ cant_min }}" readonly>
+            <button type="button" class="add" onclick="increment()">+</button>
+        </div>
+        <div id="texto">
+            <p id="cantidad-minima">Cantidad mínima: {{ cant_min }}</p>
+            <p id="total">Total: {{ precio }}bs</p>
+        </div>
+        <div class="methods">
+            <h4>Métodos de Pago:</h4>
+            <div class="method">
+                            <span>Pago Móvil: 0102 - Venezuela V15491668 0414-5651207</span>
+            </div>
+
+        </div>
+            <div class="form-group">
+                <label for="cedula">Cédula de identidad</label>
+                <input type="number" id="cedula" name="cedula" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Nombre completo</label>
+                <input type="text" id="nombre" name="nombre" required>
+            </div>
+
+                        <!-- Teléfono -->
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <select id="codigo_pais" class="form-select" style="width: 28%; " required>
+                                <option value="+58" selected>🇻🇪 +58 (Venezuela)</option>
+                                <option value="+1">🇺🇸 +1 (Estados Unidos)</option>
+                                <option value="+57">🇨🇴 +57 (Colombia)</option>
+                                <option value="+51">🇵🇪 +51 (Perú)</option>
+                                <option value="+56">🇨🇱 +56 (Chile)</option>
+                                <option value="+593">🇪🇨 +593 (Ecuador)</option>
+                                <option value="+39">🇮🇹 +39 (Italia)</option>
+                                <option value="+52">🇲🇽 +52 (México)</option>
+                            </select>
+                            <input type="tel" id="telefono" placeholder="Numero de telefono" inputmode="numeric"
+    pattern="\d{7,15}"
+    maxlength="15"
+    autocomplete="tel"
+ required>
+                    </div>
+                        <!-- 4 dígitos solicitados por el usuario -->
+                        <div class="form-group">
+                            <label for="digitos">4 ultimos digitos de referencia</label>
+                            <input type="text" id="digitos" name="digitos" pattern="\d{4}" maxlength="4" required placeholder="XXXX" inputmode="numeric">
+                        </div>
+
+                <!-- Campo oculto para enviar el número completo -->
+                <input type="hidden" id="telefono_completo" name="telefono">
+                <input type="hidden" id="total_price" name="total_price" value="{{ total_price }}">
+                <input type="hidden" id="total_price_2" name="total_price_2" value="{{ total_price2 }}">
+            <div class="form-group">
+                <label for="file">Referencia</label>
+                <input class="form-control" type="file" id="referencia" name="referencia" required accept=".png, .jpg, .jpeg">
+            </div>
+
+        <div class="actions">
+            <button type="submit" class="buy">Comprar</button>
+        </div>
+    </form>
+    </div>
+
+
+    <script>
+        document.getElementById("telefono").addEventListener("input", function () {
+            actualizarTelefonoCompleto();
+        });
+
+        document.getElementById("codigo_pais").addEventListener("change", function () {
+            actualizarTelefonoCompleto();
+        });
+
+        function actualizarTelefonoCompleto() {
+            const codigoPais = document.getElementById("codigo_pais").value;
+            const telefono = document.getElementById("telefono").value;
+            const telefonoCompleto = `${codigoPais}${telefono}`;
+            document.getElementById("telefono_completo").value = telefonoCompleto;
+        }
+    </script>
+
+<script>
+    document.getElementById("purchaseForm").addEventListener("submit", function(event) {
+        let submitButton = document.querySelector(".buy");
+        submitButton.disabled = true;
+        submitButton.innerText = "Procesando...";
+    });
+  </script>
+
+    <script>
+    let cantMin = {{ cant_min }};
+    const precioUnitario = {{ precio }};
+    const precioUnitarioDolares = {{ precio_dolares }};
+    const disponibilidad = {{ disponibilidad }};
+        // Si la cantidad mínima es mayor que la disponibilidad, ajustarla
+    if (cantMin > disponibilidad) {
+        cantMin = disponibilidad;
+        document.getElementById('cantidad-minima').textContent = `Cantidad mínima: ${cantMin}`;
+        document.getElementById('quantity').value = `${cantMin}`;
+    }
+
+    function updateTotal(quantity) {
+        const totalBs = quantity * precioUnitario;
+        const totalDolares = quantity * precioUnitarioDolares;
+
+        const totalElement = document.getElementById('total');
+        totalElement.textContent = `Total: ${totalBs}bs`;
+        // Actualizar los valores de los campos ocultos en el formulario
+        document.getElementById('total_price').value = totalBs;
+        document.getElementById('total_price_2').value = totalDolares;
+    }
+
+
+    function decrement() {
+        const quantity = document.getElementById('quantity');
+        const value = parseInt(quantity.value);
+        if (value > cantMin) {
+            const newValue = value - 1;
+            quantity.value = newValue;
+            updateTotal(newValue);
+        }
+    }
+
+    function increment() {
+        const quantity = document.getElementById('quantity');
+        const value = parseInt(quantity.value);
+        if (value < disponibilidad) {
+            const newValue = value + 1;
+            quantity.value = newValue;
+            updateTotal(newValue);
+        }
+    }
+        // Llama a updateTotal con el valor inicial al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTotal(cantMin);
+    });
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            alert(`${text} copiado al portapapeles.`);
+        }
+
+       function goBack() {
+            window.history.back();
+        }
+
+        function updateAvailabilityBar(porcentaje) {
+    const remainingBar = document.getElementById('remaining-bar');
+    const availabilityText = document.getElementById('availability-text');
+
+    // Asegúrate de que el porcentaje sea un número válido
+    const porcentajeNumerico = parseFloat(porcentaje);
+
+    if (!isNaN(porcentajeNumerico) && porcentajeNumerico >= 0 && porcentajeNumerico <= 100) {
+        // Actualiza el ancho de la barra
+        remainingBar.style.width = `${porcentajeNumerico}%`;
+
+        // Actualiza el texto dentro de la barra
+        availabilityText.textContent = `QUEDAN ${porcentajeNumerico}%`;
+    } else {
+        console.error('El porcentaje proporcionado no es válido:', porcentaje);
+    }
+}
+
+// Llama a la función con el porcentaje dinámico
+
+const porcentaje = {{ porcentaje | tojson }}; // Flask inyecta el valor
+updateAvailabilityBar(porcentaje);
+
+
+</script>
+
+</body>
+</html>

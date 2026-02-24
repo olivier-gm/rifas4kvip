@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/static/img/icono.png" type="image/x-icon">
+    <title>Rifas 4k</title>
+    <style>
+        body {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background-color: #181818f5;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: fit-content;
+        }
+        .card {
+            background-color: #e1e3d3e6;
+            color: #000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px;
+            overflow: hidden;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .card img {
+            width: 100%;
+            height: auto;
+        }
+        .card button {
+            width: 80%;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .buy {
+            background-color: rgb(76, 133, 231);
+            color: white;
+            border-radius: 10px;
+        }
+        .buy:hover {
+            background-color: rgb(70, 70, 243);
+        }
+        .info {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+
+        }
+        .info .date {
+            background-color: #d32f2f;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        .progress-container {
+        background-color: #d32f2f;
+        border-radius: 5px;
+        overflow: hidden;
+        height: 32px;
+        width: 47%;
+        position: relative;
+    }
+    .progress-bar {
+        background-color: #4caf50;
+        height: 100%;
+        width: 0;
+        transition: width 0.5s ease;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        position: relative;
+    }
+
+    #progress-text {
+        position: absolute; /* Mantiene el texto fijo */
+        width: 1000000vw; /* Asegura que ocupe el contenedor completo */
+        color: rgb(0, 0, 0);
+        font-size: 13.8px;
+        text-align: end;
+        pointer-events: none; /* Permite clics a través del texto */
+        display: flex;
+        font-weight: bold;
+        padding-left: 0.3rem;
+    }
+
+
+        .THIS {
+            margin-bottom: 13px;
+            font-weight: 500;
+        }
+        .whatsapp {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #25d366;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .whatsapp img {
+            width: 30px;
+            height: auto;
+        }
+            /* Botón de Términos bajo el botón de WhatsApp */
+    .terms-button {
+        position: fixed;
+        bottom: 85px;           /* un poco por encima del botón de WhatsApp (que está en 20px) */
+        left: 15px;
+        background-color: #000;
+        color: #fff;
+        border: none;
+        border-radius: 25px;
+        padding: 7px 12px;
+        font-size: 10px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        font-family: inherit;
+        z-index: 9999;
+    }
+
+    .terms-button:hover {
+        background-color: #111;
+    }
+
+    /* Pop-up de Términos y Condiciones */
+    .terms-modal {
+        display: none;                  /* se muestra como flex al abrir */
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9); /* fondo negro semi-transparente */
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .terms-modal-content {
+        background: #000;
+        color: #fff;
+        padding: 20px 25px;
+        border-radius: 12px;
+        max-width: 700px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .terms-modal-content h2 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    .terms-modal-content p {
+        margin: 6px 0;
+    }
+
+    .terms-close {
+        position: absolute;
+        top: 10px;
+        right: 16px;
+        font-size: 24px;
+        cursor: pointer;
+        color: #fff;
+    }
+
+        .verify {
+            background-color: rgb(76, 133, 231);
+            color: white;
+            padding: 15px;
+            font-size: 17px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            width: 300px;
+            margin-bottom: 5px;
+        }
+        .verify:hover {
+            background-color: rgb(70, 70, 243);
+        }
+
+
+        .logo{
+            width: 10vw;
+            margin-bottom: 8px;
+            margin-top: 18px;
+       }
+       @media screen and (max-width: 600px) {
+        .logo{
+            width: 30vw;
+            margin-bottom: 2px;
+            margin-top: 7px;
+
+       }
+        }
+
+
+/* 1. Fuente y Estilo General de la Tabla */
+.table {
+    /* Usamos una fuente más moderna. El navegador usará la primera que encuentre. */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    border-collapse: collapse; /* Bordes más limpios */
+    border-radius: 8px;       /* Bordes redondeados para el contenedor */
+    overflow: hidden;         /* Asegura que el contenido respete los bordes redondeados */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Sombra sutil para darle profundidad */
+}
+
+/* 2. Estilo para la Cabecera (thead) */
+.table thead th {
+    background-color: #212529; /* Un negro un poco más intenso para la cabecera */
+    color: #ffffff;
+    font-size: 0.78rem;          /* Tamaño de letra ligeramente más pequeño para cabeceras */
+    font-weight: 600;           /* Letra semi-negrita */
+    text-transform: uppercase;  /* MAYÚSCULAS para un look profesional */
+    letter-spacing: 0.5px;      /* Un poco de espacio entre letras */
+    border-bottom: 2px solid #454d55; /* Una línea inferior más gruesa para separar la cabecera */
+    padding: 15px 10px;         /* Más espacio vertical (padding) */
+}
+
+/* 3. Estilo para las Celdas del Cuerpo (tbody) */
+.table tbody td {
+    color: #e9ecef;             /* Un blanco ligeramente más suave para no cansar la vista */
+    padding: 12px 10px;        /* Espaciado interno cómodo */
+    vertical-align: middle;    /* Ya lo tienes con Bootstrap, pero lo reforzamos */
+    border: none;              /* Quitamos todos los bordes por defecto */
+    border-top: 1px solid #373b3e; /* Línea horizontal sutil para separar filas */
+}
+
+/* 4. Efecto Hover Mejorado */
+.table tbody tr:hover {
+    background-color: #343a40; /* Un gris oscuro sutil al pasar el mouse */
+    transform: scale(1.02);    /* Aumenta ligeramente el tamaño de la fila */
+    transition: all 0.2s ease-in-out; /* Animación suave para el efecto */
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.4); /* Sombra que aparece en el hover */
+}
+
+/* Reseteamos el estilo de la primera fila del body para que no tenga borde superior */
+.table tbody tr:first-child td {
+    border-top: none;
+}
+
+/* 5. Estilo para las celdas "clickables" */
+.clickable-cell {
+    cursor: pointer; /* Cambia el cursor a una mano para indicar que se puede hacer clic */
+}
+
+    </style>
+</head>
+<body>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Función para aplicar la lógica de Top 5 a una tabla específica
+        function aplicarTop5(tableElement) {
+            // Asegurarse de que el elemento es una tabla válida
+            if (!tableElement) return;
+
+            let tbody = tableElement.querySelector("tbody");
+            let thead = tableElement.querySelector("thead tr");
+
+            // Si no hay cuerpo o encabezado, salir
+            if (!tbody || !thead) return;
+
+            let rows = Array.from(tbody.querySelectorAll("tr"));
+
+            // Convertir las filas a un array con datos relevantes (cantidad de tickets en la segunda celda, índice 1)
+            let data = rows.map(row => {
+                // Verificar si la fila tiene al menos 2 celdas
+                if (row.cells.length < 2) {
+                    return { row, cantidad: 0 };
+                }
+
+                // La celda de cantidad es la 2da (índice 1)
+                let cantidadCell = row.cells[1];
+                // Usamos 0 si la conversión falla (por ejemplo, si la celda está vacía o no es un número)
+                let cantidad = parseInt(cantidadCell.textContent.trim()) || 0;
+                return { row, cantidad };
+            });
+
+            // Ordenar de mayor a menor según la cantidad
+            data.sort((a, b) => b.cantidad - a.cantidad);
+
+            // Tomar solo el top 5
+            let top5 = data.slice(0, 5);
+
+            // 1. Crear y agregar la columna de numeración a cada fila del top 5
+            top5.forEach((item, index) => {
+                let numCell = document.createElement("td");
+                numCell.textContent = index + 1; // Enumeración desde 1
+                numCell.classList.add("clickable-cell");
+                // Insertar al inicio de la fila
+                item.row.insertBefore(numCell, item.row.firstChild);
+            });
+
+            // 2. Modificar el encabezado para incluir la numeración
+            let numHeader = document.createElement("th");
+            numHeader.textContent = "#"; // Encabezado de numeración
+            // Insertar al inicio del encabezado
+            thead.insertBefore(numHeader, thead.firstChild);
+
+            // 3. Limpiar la tabla y agregar solo el top 5 con la nueva columna
+            tbody.innerHTML = "";
+            top5.forEach(item => tbody.appendChild(item.row));
+        }
+
+        // Seleccionar TODAS las tablas con la clase .table
+        // Esto incluirá la primera tabla y la segunda (si está presente)
+        let tables = document.querySelectorAll(".table");
+
+        // Iterar sobre cada tabla y aplicar la lógica
+        tables.forEach(table => {
+            aplicarTop5(table);
+        });
+    });
+</script>
+  <div><img class="logo" src="/static/img/ico.png" alt=""></div>
+
+<div class="table-responsive">
+    <table class="table table-hover table-dark align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Tickets</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for solicitud in solicitudes %}
+            <tr>
+                <td class="clickable-cell">{{ solicitud.nombre }}</td>
+                <td class="clickable-cell">{{ solicitud.length }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+    <div class="card">
+        <img src="{{ url_for('static', filename='img/partida.jpg') }}" alt="Event Image">
+        <div class="THIS">{{premio}}</div>
+
+<style>
+    .btn-custom {
+        background: linear-gradient(90deg, #006ee4, #00b8ef);
+        border: none;
+        color: white;
+        padding: 12px 25px;
+        font-size: 1rem;
+        border-radius: 50px;
+        text-decoration: none;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 4px 12px rgba(0,123,255,0.4);
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .btn-custom:hover {
+        background: linear-gradient(90deg, #0056b3, #0099cc);
+        text-decoration: none;
+        box-shadow: 0 6px 18px rgba(0,123,255,0.6);
+        transform: translateY(-2px);
+    }
+</style>
+
+<!-- Botones -->
+ <button style="margin-bottom: 3px;" class="btn-custom buy" id="buy-button" onclick="buyTickets()">
+    COMPRAR TICKETS <span style="font-size: larger;">🎫</span>
+</button>
+<button style="margin-top: 3px;" class="btn-custom verify" onclick="verifyTicket()">
+    Verificar Ticket <span style="font-size: large;">🎫</span>
+</button>
+       <div class="info">
+            <div class="date">{{ enunciado }}</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar">
+                        <span id="progress-text">QUEDAN {{ porcentaje }}%</span>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    <div class="whatsapp">
+        <a href="https://wa.me/+584162163048" target="_blank">
+            <img src="static/img/ws.png" alt="WhatsApp">
+        </a>
+    </div>
+    <!-- Botón de Términos y Condiciones debajo de WhatsApp -->
+    <button class="terms-button" onclick="openTermsModal()">
+        Términos<br>y<br>condiciones
+    </button>
+
+    <!-- Pop-up de Términos y Condiciones -->
+    <div id="terms-modal" class="terms-modal">
+        <div class="terms-modal-content">
+            <span class="terms-close" onclick="closeTermsModal()">&times;</span>
+            <h2>Términos y condiciones</h2>
+            <p>1.- Los números disponibles para la compra en cada una de nuestros sorteos se especificarán en la página de detalles correspondientes a cada sorteo.</p>
+            <p>2.- Los tickets serán enviados en un lapso de 24 horas. Tenemos un alto volumen de pagos por procesar.</p>
+            <p>3.- Solo podrán participar en nuestros sorteos personas naturales mayores de 18 años con nacionalidad venezolana o extranjeros que residan legalmente en Venezuela.</p>
+            <p>4.- Los premios deberán ser retirados en persona en la ubicación designada para cada sorteo. Solo se realizarán entregas personales en la dirección indicada por el ganador del primer premio o premio mayor.</p>
+            <p>5.- Los tickets serán asignados de manera aleatoria.</p>
+            <p>6.- Para reclamar tu premio tienes un lapso de 72 horas.</p>
+            <p>7.- Los ganadores aceptan aparecer en el contenido audiovisual del sorteo mostrando su presencia en las redes y entrega de los premios. Esto es OBLIGATORIO.</p>
+        </div>
+    </div>
+    <script>
+        function openTermsModal() {
+            const modal = document.getElementById('terms-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeTermsModal() {
+            const modal = document.getElementById('terms-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Cerrar el modal haciendo clic fuera del contenido
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('terms-modal');
+            if (modal && event.target === modal) {
+                closeTermsModal();
+            }
+        });
+
+        // Cerrar con tecla ESC
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                closeTermsModal();
+            }
+        });
+    </script>
+
+<!-- Tabla responsiva y card duplicados para Rifa2 -->
+{% if mostrar_rifa2 %}
+<div class="table-responsive">
+    <table class="table table-hover table-dark align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Nombre</th>
+                <th>Tickets</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for solicitud in solicitudes2 %}
+            <tr>
+                <td class="clickable-cell">{{ solicitud.nombre }}</td>
+                <td class="clickable-cell">{{ solicitud.length }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+    <div class="card">
+        <img src="{{ url_for('static', filename='img/partida2.jpg') }}" alt="Event Image">
+        <div class="THIS">{{premio2}}</div>
+
+<style>
+    /* Reuse styling from first card */
+</style>
+
+ <!-- Botones para rifa2 -->
+ <button style="margin-bottom: 3px;" class="btn-custom buy" id="buy-button-2" onclick="buyTickets2()">
+    COMPRAR TICKETS <span style="font-size: larger;">🎫</span>
+</button>
+
+<button style="margin-top: 3px;" class="btn-custom verify" onclick="verifyTicket2()">
+    Verificar Ticket <span style="font-size: large;">🎫</span>
+</button>
+       <div class="info">
+            <div class="date">{{ enunciado2 }}</div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar-2">
+                        <span id="progress-text">QUEDAN {{ porcentaje2 }}%</span>
+                    </div>
+                </div>
+        </div>
+    </div>
+    {% endif %}
+
+     <script>
+        function buyTickets() {
+            window.location.href = '/compra';
+        }
+
+        function verifyTicket() {
+            window.location.href = '/verify';
+        }
+
+    function updateProgressBar(porcentaje) {
+    const progressBar = document.getElementById('progress-bar');
+
+    // Asegurarse de que porcentaje sea un número válido
+    const porcentajeNumerico = parseFloat(porcentaje);
+
+    if (!isNaN(porcentajeNumerico)) { // Validar que porcentajeNumerico sea un número
+        progressBar.style.width = `${porcentajeNumerico}%`;
+
+        const progressText = document.getElementById('progress-text');
+        progressText.textContent = `QUEDAN ${porcentajeNumerico}%`;
+    } else {
+        console.error('El porcentaje proporcionado no es válido:', porcentaje);
+    }
+}
+
+    // Llama a la función con el porcentaje dinámico
+    const porcentaje = {{ porcentaje | tojson }}; // Esto será inyectado por Flask
+    updateProgressBar(porcentaje);
+    </script>
+    <script>
+        // Rifa2: acciones y barra de progreso independientes
+        function buyTickets2() {
+            window.location.href = '/2/compra';
+        }
+
+        function verifyTicket2() {
+            window.location.href = '/verify2';
+        }
+
+        function updateProgressBar2(porcentaje) {
+            const progressBar = document.getElementById('progress-bar-2');
+
+            const porcentajeNumerico = parseFloat(porcentaje);
+            if (!isNaN(porcentajeNumerico)) {
+                progressBar.style.width = `${porcentajeNumerico}%`;
+                const progressText = document.getElementById('progress-text-2');
+                progressText.textContent = `QUEDAN ${porcentajeNumerico}%`;
+            } else {
+                console.error('El porcentaje proporcionado no es válido (rifa2):', porcentaje);
+            }
+        }
+
+        // Inicializar rifa2
+        const porcentaje2 = {{ porcentaje2 | tojson }};
+        updateProgressBar2(porcentaje2);
+    </script>
+    <script>
+        // Variables obtenidas desde el backend
+        const enunciado = "{{ enunciado }}".trim();
+        const disponibilidad = {{ disponibilidad }};
+
+        // Si no hay rifa disponible o disponibilidad es 0, ocultar el botón
+        if (enunciado === "No disponible" || disponibilidad === 0) {
+            document.getElementById("buy-button").style.display = "none";
+        }
+    </script>
+    <script>
+        // Variables para rifa2
+        const enunciado2 = "{{ enunciado2 }}".trim();
+        const disponibilidad2 = {{ disponibilidad2 }};
+
+        if (enunciado2 === "No disponible" || disponibilidad2 === 0) {
+            const btn2 = document.getElementById("buy-button-2");
+            if (btn2) btn2.style.display = "none";
+        }
+    </script>
+
+    <script>
+(function () {
+  'use strict';
+
+  const CONFIG = {
+    // Si quieres forzar un host concreto, ponlo aquí (ej. "midominio.com").
+    // Deja null para usar el host actual.
+    fixedHost: null,
+    // true = usar navegador por defecto (recomendado)
+    // false = forzar Chrome con package=com.android.chrome
+    useDefaultAndroidBrowser: true,
+    // Retardo antes del intento automático
+    redirectDelayMs: 600,
+    // Nombre de la query para evitar bucles
+    loopParam: 'iab_redirected'
+  };
+
+  const ua = navigator.userAgent || navigator.vendor || '';
+  const isAndroid = /Android/i.test(ua);
+  const isIAB = /(Instagram|FBAN|FBAV|FB_IAB)/i.test(ua); // IG/FB in-app
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+
+  function getCurrentUrlWithFlag() {
+    const u = new URL(location.href);
+    u.searchParams.set(CONFIG.loopParam, '1');
+    return u;
+  }
+
+  function hasLoopFlag() {
+    return new URL(location.href).searchParams.has(CONFIG.loopParam);
+  }
+
+  function cleanLoopFlagFromHistory() {
+    const u = new URL(location.href);
+    if (u.searchParams.delete(CONFIG.loopParam)) {
+      history.replaceState({}, '', u.toString());
+    }
+  }
+
+  function buildTargets() {
+    const here = new URL(location.href);
+    const host = CONFIG.fixedHost ? CONFIG.fixedHost : here.host;
+    const path = here.pathname;
+    const qs = here.search; // ya incluye '?...'
+
+    // URL https “normal” equivalente
+    const httpsUrl = `https://${host}${path}${qs}`;
+
+    // Para Android: intent://host/path?qs#Intent;scheme=https;[package=...];end
+    let intent = `intent://${host}${path}${qs}#Intent;scheme=https;`;
+    if (!CONFIG.useDefaultAndroidBrowser) {
+      intent += 'package=com.android.chrome;';
+    }
+    intent += 'end';
+
+    return { httpsUrl, intentUrl: intent };
+  }
+
+  function tryIntentAndroid() {
+    const { intentUrl } = buildTargets();
+    // El intento debe hacerse con location.href para que IG muestre el diálogo
+    location.href = intentUrl;
+
+    // Fallback: si seguimos “visibles” tras ~1.5s, regresar a https para no dejar colgado
+    setTimeout(() => {
+      if (!document.hidden) {
+        const { httpsUrl } = buildTargets();
+        location.href = httpsUrl;
+      }
+    }, CONFIG.redirectDelayMs + 1000);
+  }
+
+  function showToast(msg, ms = 1200) {
+    const div = document.createElement('div');
+    div.textContent = msg;
+    Object.assign(div.style, {
+      position: 'fixed',
+      top: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      background: '#333',
+      color: '#fff',
+      padding: '12px 16px',
+      borderRadius: '10px',
+      fontFamily: 'system-ui,-apple-system,Segoe UI,Roboto',
+      fontSize: '14px',
+      zIndex: 99999,
+      boxShadow: '0 6px 18px rgba(0,0,0,.25)'
+    });
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), ms);
+  }
+
+  function renderFallbackUI() {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = `
+      <div style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0b0b0b08;z-index:9999">
+        <div style="background:#fff;border-radius:14px;padding:18px 16px;max-width:420px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.12);font-family:system-ui,-apple-system,Segoe UI,Roboto">
+          <div style="font-size:18px;font-weight:700;margin-bottom:6px">Abrir en el navegador</div>
+          <div style="opacity:.8;line-height:1.4;margin-bottom:12px">
+            Estás viendo esto dentro de Instagram. ${
+              isAndroid
+                ? 'Toca el botón para abrir en tu navegador del sistema.'
+                : 'En iPhone: toca ••• en la esquina y elige “Abrir en el navegador”.'
+            }
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end">
+            <button id="iab-open-btn" style="padding:10px 14px;border:0;border-radius:10px;background:#111;color:#fff;cursor:pointer">
+              Abrir ahora
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(wrap);
+    const btn = wrap.querySelector('#iab-open-btn');
+    btn?.addEventListener('click', () => {
+      if (isAndroid) {
+        tryIntentAndroid();
+      } else {
+        const { httpsUrl } = buildTargets();
+        // En iOS esto seguirá en el IAB; aún así dejamos el gesto por si IG respeta window.open en tu versión
+        window.location.href = httpsUrl;
+      }
+    });
+  }
+
+  function init() {
+    // Si ya venimos “marcados”, limpiamos el flag y no reintentamos
+    if (hasLoopFlag()) {
+      cleanLoopFlagFromHistory();
+      return;
+    }
+
+    // Solo hacemos magia en Android dentro de IG/FB
+    if (isIAB && isAndroid) {
+      // Marca la URL para evitar bucles (en la navegación siguiente)
+      const flagged = getCurrentUrlWithFlag().toString();
+      history.replaceState({}, '', flagged);
+
+      showToast('Abriendo en el navegador del sistema…', 1400);
+      setTimeout(() => {
+        tryIntentAndroid();
+      }, CONFIG.redirectDelayMs);
+    } else if (isIAB && isIOS) {
+      // iOS: sin intent. Muestra botón/instrucciones.
+      renderFallbackUI();
+    } else {
+      // Navegador normal: no hacer nada.
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+</body>
+</html>
