@@ -1,359 +1,664 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="/static/img/ico.png" type="image/x-icon">
-    <title>Comprar tickets</title>
-
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-
+    <title>Comprar Tickets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
             margin: 0;
-            background-color: #000000f5;
-            color: #fff;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #0a0a0a;
+            color: #e8e8e8;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            min-height: 100vh;
+            padding: 20px 12px 40px;
         }
+
+        /* ── Contenedor principal ── */
         .container {
-            max-width: 600px;
+            max-width: 560px;
             width: 100%;
-            background-color: #222;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            background-color: #111111;
+            border: 1px solid #2a2a2a;
+            padding: 24px 20px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
         }
+
+        /* ── Título ── */
+        .page-title {
+            text-align: center;
+            font-size: 1.35rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            margin-bottom: 18px;
+        }
+
+        .page-title span {
+            color: #22c55e;
+        }
+
+        /* ── Barra de disponibilidad ── */
         .availability-bar {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            background-color: #e0e0e0; /* Fondo de la barra completa */
-            border-radius: 5px;
+            position: relative;
+            background-color: #1e1e1e;
+            border-radius: 8px;
             overflow: hidden;
-            height: 36px;
-            margin-bottom: 20px;
-            position: relative; /* Necesario para posicionar el texto */
+            height: 34px;
+            margin-bottom: 22px;
+            border: 1px solid #2a2a2a;
         }
 
         .availability-bar .remaining {
-            background-color: #4caf50; /* Color de la barra de progreso */
+            background-color: #22c55e;
             height: 100%;
-            transition: width 0.3s ease; /* Animación suave */
+            transition: width 0.4s ease;
         }
 
         .availability-text {
-            position: absolute; /* Centra el texto sobre la barra */
+            position: absolute;
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            color: #000000;
-            font-weight: bold;
-            pointer-events: none; /* Evita que el texto interfiera con clics */
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            white-space: nowrap;
         }
 
+        /* ── Sección de cantidad ── */
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        /* Botones rápidos de cantidad */
+        .quick-amounts {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .quick-btn {
+            background-color: #1c1c1c;
+            border: 1px solid #333;
+            color: #ddd;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            text-align: center;
+        }
+
+        .quick-btn:hover,
+        .quick-btn.active {
+            background-color: #22c55e;
+            border-color: #22c55e;
+            color: #000;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.35);
+        }
+
+        /* Contador +/- */
         .counter {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 12px;
         }
-.counter button {
-    background-color: red;
-    color: white;
-    font-size: 20px;
-    border: none;
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    animation: neonBlink 1s infinite alternate;
-}
 
-.counter button.add {
-    background-color: #4caf50;
-}
-
-@keyframes neonBlink {
-    0% {
-        box-shadow: 0 0 5px #ff00f7, 0 0 10px #ff00f7;
-        transform: scale(1);
-    }
-    100% {
-        box-shadow: 0 0 20px #ff00f7, 0 0 40px #ff00f7;
-        transform: scale(1.05);
-    }
-}
-
-        .counter input {
-            width: 50px;
-            height: 40px;
-            text-align: center;
-            font-size: 18px;
+        .counter button {
+            flex: 0 0 48px;
+            height: 48px;
+            font-size: 22px;
+            font-weight: 700;
             border: none;
-            background-color: #3a3a3a;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .counter button.sub {
+            background-color: #2d1515;
+            color: #f87171;
+            border: 1px solid #3d1f1f;
+        }
+
+        .counter button.sub:hover {
+            background-color: #ef4444;
             color: #fff;
         }
-        .methods {
-            margin-bottom: 20px;
+
+        .counter button.add {
+            background-color: #0f2d1a;
+            color: #22c55e;
+            border: 1px solid #1a4028;
         }
-        .methods h4 {
-            margin-bottom: 10px;
+
+        .counter button.add:hover {
+            background-color: #22c55e;
+            color: #fff;
         }
-        .methods .method {
+
+        .counter input {
+            flex: 1;
+            height: 48px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            background-color: #1a1a1a;
+            color: #fff;
+        }
+
+        /* Info mínima / total */
+        .info-row {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            background-color: #444;
-            padding: 10px;
-            font-size: large;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            padding: 10px 14px;
+            background: #161616;
+            border: 1px solid #242424;
+            border-radius: 8px;
+            margin-bottom: 22px;
+            font-size: 0.85rem;
         }
-        .methods .method button {
-            background-color: #333;
-            color: white;
-            border: none;
+
+        .info-row .label {
+            color: #888;
+        }
+
+        .info-row .value {
+            font-weight: 700;
+            color: #22c55e;
+            font-size: 1rem;
+        }
+
+        /* ── Métodos de pago ── */
+        .methods-section {
+            margin-bottom: 22px;
+        }
+
+        .payment-card {
+            background: #161616;
+            border: 1px solid #2a2a2a;
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        /* Ícono banco circular */
+        .bank-icon-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .bank-icon-circle {
+            position: relative;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #333;
+            background: #1e1e1e;
+            flex-shrink: 0;
             cursor: pointer;
+        }
+
+        .bank-icon-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .bank-icon-circle .upload-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 50%;
+            color: #aaa;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+            padding: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .bank-icon-circle:hover .upload-overlay {
+            background: rgba(0, 0, 0, 0.75);
+            color: #22c55e;
+        }
+
+        .bank-icon-circle input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .bank-info {
+            flex: 1;
+        }
+
+        .bank-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .bank-details {
+            font-size: 0.82rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .copy-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            color: #aaa;
+            font-size: 0.75rem;
             padding: 5px 10px;
-            border-radius: 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-top: 8px;
         }
+
+        .copy-badge:hover {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+
+        /* ── Formulario ── */
+        .form-section {}
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 14px;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #888;
+            margin-bottom: 6px;
         }
-        .form-select{
-        background-color: whitesmoke;
-        padding: 5px;
-        font-size: 14px;
-        }
-        .form-group input {
-            font-size: 16px;
-            width: 100%;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background-color: #3a3a3a;
-            color: white;
-        }
-        .form-group input[type="file"] {
-            padding: 5px;
-            width: 50%;
 
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 11px 14px;
+            font-size: 0.95rem;
+            border: 1px solid #2a2a2a;
+            border-radius: 9px;
+            background-color: #1a1a1a;
+            color: #e8e8e8;
+            outline: none;
+            transition: border-color 0.18s;
         }
-        .actions {
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #22c55e;
+        }
+
+        .form-group input::placeholder {
+            color: #555;
+        }
+
+        /* Input file para referencia */
+        .file-input-wrapper {
+            position: relative;
+        }
+
+        .file-input-label {
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            background: #1a1a1a;
+            border: 1px dashed #333;
+            border-radius: 9px;
+            padding: 12px 14px;
+            cursor: pointer;
+            font-size: 0.88rem;
+            color: #888;
+            transition: border-color 0.18s, color 0.18s;
         }
-        .actions button {
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 5px;
+
+        .file-input-label:hover {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+
+        .file-icon {
+            font-size: 1.3rem;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
             cursor: pointer;
         }
-        .actions .buy {
-            background-color: #4caf50;
-            color: white;
-        }
-        .actions .back {
-            background-color: red;
-            color: white;
-        }
-        #texto{
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
+
+        .file-name-display {
+            font-size: 0.78rem;
+            color: #666;
+            margin-top: 5px;
+            padding-left: 4px;
         }
 
+        /* Select teléfono */
+        .tel-group {
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .tel-group select {
+            width: auto;
+            flex: 0 0 auto;
+            font-size: 0.82rem;
+            padding: 11px 8px;
+        }
+
+        .tel-group input {
+            flex: 1;
+        }
+
+        /* ── Botón Comprar ── */
+        .btn-buy {
+            width: 100%;
+            padding: 15px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            background-color: #22c55e;
+            color: #000;
+            border: none;
+            border-radius: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 6px;
+        }
+
+        .btn-buy:hover:not(:disabled) {
+            background-color: #16a34a;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-buy:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid #222;
+            margin: 20px 0;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
+
+        <p class="page-title">🎟️ Elige tus <span>Tickets</span></p>
+
+        <!-- Barra de disponibilidad -->
         <div class="availability-bar">
             <div class="remaining" id="remaining-bar"></div>
             <div class="availability-text" id="availability-text">QUEDAN {{ porcentaje }}%</div>
         </div>
+
         <form id="purchaseForm" action="/registrar_compra" method="POST" enctype="multipart/form-data">
 
-        <div class="counter">
-            <button type="button" onclick="decrement()">-</button>
-            <input type="text" id="quantity" name="quantity" value="{{ cant_min }}" readonly>
-            <button type="button" class="add" onclick="increment()">+</button>
-        </div>
-        <div id="texto">
-            <p id="cantidad-minima">Cantidad mínima: {{ cant_min }}</p>
-            <p id="total">Total: {{ precio }}bs</p>
-        </div>
-        <div class="methods">
-            <h4>Métodos de Pago:</h4>
-            <div class="method">
-                            <span>Pago Móvil: 0102 - Venezuela V15491668 0414-5651207</span>
+            <!-- Cantidad -->
+            <p class="section-label">Cantidad de tickets</p>
+
+            <!-- Botones rápidos -->
+            <div class="quick-amounts">
+                <button type="button" class="quick-btn" onclick="setQuantity(50)">50</button>
+                <button type="button" class="quick-btn" onclick="setQuantity(200)">200</button>
+                <button type="button" class="quick-btn" onclick="setQuantity(500)">500</button>
+                <button type="button" class="quick-btn" onclick="setQuantity(1000)">1K</button>
+                <button type="button" class="quick-btn" onclick="setQuantity(2000)">2K</button>
             </div>
 
-        </div>
+            <!-- Contador -->
+            <div class="counter">
+                <button type="button" class="sub" onclick="decrement()">−</button>
+                <input type="text" id="quantity" name="quantity" value="{{ cant_min }}" readonly>
+                <button type="button" class="add" onclick="increment()">+</button>
+            </div>
+
+            <!-- Fila info -->
+            <div class="info-row">
+                <span class="label">Mínimo: <strong>{{ cant_min }}</strong> ticket(s)</span>
+                <span class="value" id="total">{{ precio }} Bs</span>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Métodos de pago -->
+            <div class="methods-section">
+                <p class="section-label">Método de pago</p>
+                <div class="payment-card">
+                    <!-- Ícono circular del banco -->
+                    <div class="bank-icon-wrapper">
+                        <div class="bank-icon-circle" id="bankIconCircle">
+                            <img id="bankIconPreview" src="/static/img/banco.png" alt="Banco" style="display:block;">
+                        </div>
+                        <div class="bank-info">
+                            <div class="bank-name">Pago Móvil</div>
+                            <div class="bank-details">
+                                0102 · Venezuela<br>
+                                V-15491668 · 0414-5651207
+                            </div>
+                            <button type="button" class="copy-badge" onclick="copyToClipboard('0414-5651207')">
+                                📋 Copiar número
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <!-- Formulario de datos -->
+            <p class="section-label">Tus datos</p>
+
             <div class="form-group">
                 <label for="cedula">Cédula de identidad</label>
-                <input type="number" id="cedula" name="cedula" required>
+                <input type="number" id="cedula" name="cedula" placeholder="Ej: 12345678" required>
             </div>
+
             <div class="form-group">
-                <label for="name">Nombre completo</label>
-                <input type="text" id="nombre" name="nombre" required>
+                <label for="nombre">Nombre completo</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
             </div>
 
-                        <!-- Teléfono -->
-                        <div class="form-group">
-                            <label for="telefono">Teléfono</label>
-                            <select id="codigo_pais" class="form-select" style="width: 28%; " required>
-                                <option value="+58" selected>🇻🇪 +58 (Venezuela)</option>
-                                <option value="+1">🇺🇸 +1 (Estados Unidos)</option>
-                                <option value="+57">🇨🇴 +57 (Colombia)</option>
-                                <option value="+51">🇵🇪 +51 (Perú)</option>
-                                <option value="+56">🇨🇱 +56 (Chile)</option>
-                                <option value="+593">🇪🇨 +593 (Ecuador)</option>
-                                <option value="+39">🇮🇹 +39 (Italia)</option>
-                                <option value="+52">🇲🇽 +52 (México)</option>
-                            </select>
-                            <input type="tel" id="telefono" placeholder="Numero de telefono" inputmode="numeric"
-    pattern="\d{7,15}"
-    maxlength="15"
-    autocomplete="tel"
- required>
-                    </div>
-                        <!-- 4 dígitos solicitados por el usuario -->
-                        <div class="form-group">
-                            <label for="digitos">4 ultimos digitos de referencia</label>
-                            <input type="text" id="digitos" name="digitos" pattern="\d{4}" maxlength="4" required placeholder="XXXX" inputmode="numeric">
-                        </div>
-
-                <!-- Campo oculto para enviar el número completo -->
-                <input type="hidden" id="telefono_completo" name="telefono">
-                <input type="hidden" id="total_price" name="total_price" value="{{ total_price }}">
-                <input type="hidden" id="total_price_2" name="total_price_2" value="{{ total_price2 }}">
             <div class="form-group">
-                <label for="file">Referencia</label>
-                <input class="form-control" type="file" id="referencia" name="referencia" required accept=".png, .jpg, .jpeg">
+                <label for="telefono">Correo electrónico</label>
+                <input type="email" id="telefono" name="telefono" placeholder="Ej: nombre@correo.com"
+                    autocomplete="email" required>
             </div>
 
-        <div class="actions">
-            <button type="submit" class="buy">Comprar</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="digitos">4 últimos dígitos de referencia</label>
+                <input type="text" id="digitos" name="digitos" pattern="\d{4}" maxlength="4" required placeholder="XXXX"
+                    inputmode="numeric">
+            </div>
+
+            <!-- Campos ocultos -->
+            <input type="hidden" id="total_price" name="total_price" value="{{ total_price }}">
+            <input type="hidden" id="total_price_2" name="total_price_2" value="{{ total_price2 }}">
+
+            <div class="form-group">
+                <label>Comprobante de pago</label>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="referencia">
+                        <span class="file-icon">📎</span>
+                        <span id="fileLabel">Seleccionar imagen (.jpg, .png)</span>
+                    </label>
+                    <input class="form-control" type="file" id="referencia" name="referencia" required
+                        accept=".png,.jpg,.jpeg" onchange="updateFileName(this)">
+                </div>
+                <div class="file-name-display" id="fileDisplay"></div>
+            </div>
+
+            <button type="submit" class="btn-buy">✅ Confirmar Compra</button>
+
+        </form>
     </div>
 
-
     <script>
-        document.getElementById("telefono").addEventListener("input", function () {
-            actualizarTelefonoCompleto();
+
+        /* ── Bloqueo doble envío ── */
+        document.getElementById("purchaseForm").addEventListener("submit", function () {
+            const btn = document.querySelector(".btn-buy");
+            btn.disabled = true;
+            btn.innerText = "⏳ Procesando...";
         });
 
-        document.getElementById("codigo_pais").addEventListener("change", function () {
-            actualizarTelefonoCompleto();
+        /* ── Lógica de cantidad ── */
+        let cantMin = {{ cant_min }};
+        const precioUnitario = {{ precio }};
+        const precioUnitarioDolares = {{ precio_dolares }};
+        const disponibilidad = {{ disponibilidad }};
+
+        if (cantMin > disponibilidad) {
+            cantMin = disponibilidad;
+            document.getElementById('quantity').value = cantMin;
+        }
+
+        function updateTotal(q) {
+            const totalBs = q * precioUnitario;
+            const totalDolares = q * precioUnitarioDolares;
+            document.getElementById('total').textContent = `${totalBs} Bs`;
+            document.getElementById('total_price').value = totalBs;
+            document.getElementById('total_price_2').value = totalDolares;
+
+            // Resaltar botón rápido activo
+            document.querySelectorAll('.quick-btn').forEach(btn => {
+                btn.classList.toggle('active', parseInt(btn.getAttribute('data-val')) === q);
+            });
+        }
+
+        // Asignar data-val a botones rápidos para resaltado
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            const txt = btn.textContent.trim();
+            const val = txt === '1K' ? 1000 : txt === '2K' ? 2000 : parseInt(txt);
+            btn.setAttribute('data-val', val);
         });
 
-        function actualizarTelefonoCompleto() {
-            const codigoPais = document.getElementById("codigo_pais").value;
-            const telefono = document.getElementById("telefono").value;
-            const telefonoCompleto = `${codigoPais}${telefono}`;
-            document.getElementById("telefono_completo").value = telefonoCompleto;
+        function setQuantity(val) {
+            const clamped = Math.max(cantMin, Math.min(val, disponibilidad));
+            document.getElementById('quantity').value = clamped;
+            updateTotal(clamped);
         }
-    </script>
 
-<script>
-    document.getElementById("purchaseForm").addEventListener("submit", function(event) {
-        let submitButton = document.querySelector(".buy");
-        submitButton.disabled = true;
-        submitButton.innerText = "Procesando...";
-    });
-  </script>
-
-    <script>
-    let cantMin = {{ cant_min }};
-    const precioUnitario = {{ precio }};
-    const precioUnitarioDolares = {{ precio_dolares }};
-    const disponibilidad = {{ disponibilidad }};
-        // Si la cantidad mínima es mayor que la disponibilidad, ajustarla
-    if (cantMin > disponibilidad) {
-        cantMin = disponibilidad;
-        document.getElementById('cantidad-minima').textContent = `Cantidad mínima: ${cantMin}`;
-        document.getElementById('quantity').value = `${cantMin}`;
-    }
-
-    function updateTotal(quantity) {
-        const totalBs = quantity * precioUnitario;
-        const totalDolares = quantity * precioUnitarioDolares;
-
-        const totalElement = document.getElementById('total');
-        totalElement.textContent = `Total: ${totalBs}bs`;
-        // Actualizar los valores de los campos ocultos en el formulario
-        document.getElementById('total_price').value = totalBs;
-        document.getElementById('total_price_2').value = totalDolares;
-    }
-
-
-    function decrement() {
-        const quantity = document.getElementById('quantity');
-        const value = parseInt(quantity.value);
-        if (value > cantMin) {
-            const newValue = value - 1;
-            quantity.value = newValue;
-            updateTotal(newValue);
+        function decrement() {
+            const qty = document.getElementById('quantity');
+            const v = parseInt(qty.value);
+            if (v > cantMin) { qty.value = v - 1; updateTotal(v - 1); }
         }
-    }
 
-    function increment() {
-        const quantity = document.getElementById('quantity');
-        const value = parseInt(quantity.value);
-        if (value < disponibilidad) {
-            const newValue = value + 1;
-            quantity.value = newValue;
-            updateTotal(newValue);
+        function increment() {
+            const qty = document.getElementById('quantity');
+            const v = parseInt(qty.value);
+            if (v < disponibilidad) { qty.value = v + 1; updateTotal(v + 1); }
         }
-    }
-        // Llama a updateTotal con el valor inicial al cargar la página
-    document.addEventListener('DOMContentLoaded', () => {
-        updateTotal(cantMin);
-    });
 
+        document.addEventListener('DOMContentLoaded', () => updateTotal(cantMin));
+
+        /* ── Copiar ── */
         function copyToClipboard(text) {
             navigator.clipboard.writeText(text);
-            alert(`${text} copiado al portapapeles.`);
+            alert(`"${text}" copiado al portapapeles.`);
         }
 
-       function goBack() {
-            window.history.back();
+        /* ── Nombre de archivo ── */
+        function updateFileName(input) {
+            const label = document.getElementById('fileLabel');
+            const display = document.getElementById('fileDisplay');
+            if (input.files && input.files[0]) {
+                label.textContent = '✅ Archivo seleccionado';
+                display.textContent = input.files[0].name;
+            }
         }
 
+        /* ── Preview ícono banco ── */
+        function previewBankIcon(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.getElementById('bankIconPreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('bankUploadOverlay').style.display = 'none';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        /* ── Barra de disponibilidad ── */
         function updateAvailabilityBar(porcentaje) {
-    const remainingBar = document.getElementById('remaining-bar');
-    const availabilityText = document.getElementById('availability-text');
+            const p = parseFloat(porcentaje);
+            if (!isNaN(p) && p >= 0 && p <= 100) {
+                document.getElementById('remaining-bar').style.width = `${p}%`;
+                document.getElementById('availability-text').textContent = `QUEDAN ${p}%`;
+            }
+        }
 
-    // Asegúrate de que el porcentaje sea un número válido
-    const porcentajeNumerico = parseFloat(porcentaje);
-
-    if (!isNaN(porcentajeNumerico) && porcentajeNumerico >= 0 && porcentajeNumerico <= 100) {
-        // Actualiza el ancho de la barra
-        remainingBar.style.width = `${porcentajeNumerico}%`;
-
-        // Actualiza el texto dentro de la barra
-        availabilityText.textContent = `QUEDAN ${porcentajeNumerico}%`;
-    } else {
-        console.error('El porcentaje proporcionado no es válido:', porcentaje);
-    }
-}
-
-// Llama a la función con el porcentaje dinámico
-
-const porcentaje = {{ porcentaje | tojson }}; // Flask inyecta el valor
-updateAvailabilityBar(porcentaje);
-
-
-</script>
-
+        const porcentaje = {{ porcentaje | tojson }};
+        updateAvailabilityBar(porcentaje);
+    </script>
 </body>
+
 </html>

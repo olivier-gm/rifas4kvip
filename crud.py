@@ -315,7 +315,7 @@ def get_porcentaje(flag):
     conn.close()
     if flag is False:
         return cantidad
-    total = 10000
+    total = 1000000
     return round((cantidad / total) * 100, 2)
 
 def get_precio():
@@ -468,7 +468,7 @@ def get_porcentaje2(flag):
     conn.close()
     if flag is False:
         return cantidad
-    total = 10000
+    total = 1000000
     return round((cantidad / total) * 100, 2)
 
 def get_precio2():

@@ -254,17 +254,24 @@ def reiniciar():
 
     cursor.executemany("""
     INSERT OR IGNORE INTO tickets_disponibles (carton_disponible) VALUES (?);
-    """, [(i,) for i in range(1, 10001)])
+    """, [(i,) for i in range(1, 1000001)])
     conn.commit()
 
     conn.close()
 
-        # Eliminar todos los archivos en /static/comprobantes/
-    # folder_path = 'static/comprobantes/'
-    # for filename in os.listdir(folder_path):
-    #     file_path = os.path.join(folder_path, filename)
-    #     if os.path.isfile(file_path):  # Verificar si es un archivo
-    #         os.remove(file_path)
+    # Eliminar todos los archivos en /static/comprobantes/ (sin borrar la carpeta)
+    # Se usa app.root_path para que funcione tanto en local como en servidor
+    comprobantes_path = os.path.join(app.root_path, 'static', 'comprobantes')
+    if os.path.isdir(comprobantes_path):
+        for filename in os.listdir(comprobantes_path):
+            file_path = os.path.join(comprobantes_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                app.logger.warning(f"No se pudo eliminar {file_path}: {e}")
 
     # Redirigir al panel de administración
     return redirect(url_for('admin_dashboard_partida'))
@@ -283,17 +290,24 @@ def reiniciar2():
 
     cursor.executemany("""
     INSERT OR IGNORE INTO tickets_disponibles (carton_disponible) VALUES (?);
-    """, [(i,) for i in range(1, 10001)])
+    """, [(i,) for i in range(1, 1000001)])
     conn.commit()
 
     conn.close()
 
-    # Opcional: eliminar comprobantes si lo deseas (mantengo comentado como en reiniciar)
-    # folder_path = 'static/comprobantes/'
-    # for filename in os.listdir(folder_path):
-    #     file_path = os.path.join(folder_path, filename)
-    #     if os.path.isfile(file_path):
-    #         os.remove(file_path)
+    # Eliminar todos los archivos en /static/comprobantes/ (sin borrar la carpeta)
+    # Se usa app.root_path para que funcione tanto en local como en servidor
+    comprobantes_path = os.path.join(app.root_path, 'static', 'comprobantes')
+    if os.path.isdir(comprobantes_path):
+        for filename in os.listdir(comprobantes_path):
+            file_path = os.path.join(comprobantes_path, filename)
+            try:
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            except Exception as e:
+                app.logger.warning(f"No se pudo eliminar {file_path}: {e}")
 
     # Redirigir al panel de administración de rifa2
     return redirect(url_for('admin_dashboard_partida2'))
@@ -858,6 +872,98 @@ def mostrar_cartones2():
 
         return render_template("disponibles_no2.html", tickets=tickets, montos_totales=montos_totales)
 
+
+
+# ── Premios DB helper ──────────────────────────────────────────────
+def get_premios_conn():
+    conn = sqlite3.connect('premios.db')
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS tickets_premiados (
+            id     INTEGER PRIMARY KEY AUTOINCREMENT,
+            numero INTEGER UNIQUE NOT NULL,
+            valor  TEXT NOT NULL
+        )
+    ''')
+    conn.commit()
+    return conn
+
+
+@app.route('/premios')
+def premios():
+    """Devuelve JSON con todos los tickets premiados + estado en rifa.db."""
+    with get_premios_conn() as pc:
+        rows = pc.execute('SELECT numero, valor FROM tickets_premiados ORDER BY numero').fetchall()
+
+    # Construir mapa exacto: ticket_int -> nombre del comprador
+    ticket_a_nombre = {}
+    with sqlite3.connect('rifa.db') as rc:
+        compradores = rc.execute('SELECT nombre_apellidos, tickets_vendidos FROM requeridos').fetchall()
+
+    for nombre, tickets_str in compradores:
+        if not tickets_str:
+            continue
+        try:
+            # tickets_vendidos es un array como: [123, 456, 789]
+            parsed = json.loads(tickets_str)
+            if isinstance(parsed, list):
+                for t in parsed:
+                    ticket_a_nombre[int(t)] = nombre
+        except (json.JSONDecodeError, ValueError):
+            # Fallback: parsear manualmente el string "[a, b, c]"
+            nums = tickets_str.strip('[]').split(',')
+            for n in nums:
+                n = n.strip()
+                if n.isdigit():
+                    ticket_a_nombre[int(n)] = nombre
+
+    result = []
+    for numero, valor in rows:
+        ganador = ticket_a_nombre.get(int(numero))
+        result.append({
+            'numero': numero,
+            'valor': valor,
+            'estado': 'tomado' if ganador else 'libre',
+            'ganador': ganador or ''
+        })
+
+    return jsonify(result)
+
+
+
+@app.route('/admin/dashboard/premios/add', methods=['POST'])
+@login_required
+def premios_add():
+    data = request.get_json()
+    numero = data.get('numero')
+    valor  = data.get('valor', '').strip()
+
+    try:
+        numero = int(numero)
+    except (TypeError, ValueError):
+        return jsonify({'success': False, 'message': 'Número inválido'}), 400
+
+    if not (1 <= numero <= 1000000):
+        return jsonify({'success': False, 'message': 'El número debe estar entre 1 y 1 000 000'}), 400
+
+    if not valor:
+        return jsonify({'success': False, 'message': 'El valor del premio no puede estar vacío'}), 400
+
+    try:
+        with get_premios_conn() as pc:
+            pc.execute('INSERT INTO tickets_premiados (numero, valor) VALUES (?, ?)', (numero, valor))
+        return jsonify({'success': True})
+    except sqlite3.IntegrityError:
+        return jsonify({'success': False, 'message': f'El ticket {numero:04d} ya está registrado como premiado'}), 409
+
+
+@app.route('/admin/dashboard/premios/delete', methods=['POST'])
+@login_required
+def premios_delete():
+    data   = request.get_json()
+    numero = data.get('numero')
+    with get_premios_conn() as pc:
+        pc.execute('DELETE FROM tickets_premiados WHERE numero = ?', (numero,))
+    return jsonify({'success': True})
 
 
 if __name__ == '__main__':
